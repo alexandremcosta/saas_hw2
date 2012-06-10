@@ -7,12 +7,33 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.order(params[:order])
-    if params[:order] == 'title'
+    # Set table header class to hilite
+    if params['order'] == 'title'
       @title_hilite = 'hilite'
-    elsif params[:order] == 'release_date'
+    elsif params['order'] == 'release_date'
       @rd_hilite = 'hilite'
     end
+
+    # Prepare checkboxes
+    @all_ratings = Movie.all_ratings
+    if params['ratings']
+      selected_ratings = params['ratings'].keys
+    else
+      selected_ratings = @all_ratings
+    end
+
+    @checked = {}
+    @all_ratings.each do |rating|
+      if selected_ratings.include?(rating)
+        @checked[rating] = true
+      else
+        @checked[rating] = false
+      end
+    end
+
+    # Get data from DB respecting desired sorting and filtering
+    @movies = Movie.where(rating: selected_ratings).order(params['order'])
+
   end
 
   def new
