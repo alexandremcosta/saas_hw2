@@ -7,7 +7,7 @@
     = rating
     = check_box_tag "ratings[#{rating}]", 'yes', @checked[rating]
     = hidden_field_tag 'order', params['order']
-  = submit_tag 'Refresh'
+  = submit_tag 'Refresh', id: 'ratings_submit'
 %table#movies
   %thead
     %tr
