@@ -7,32 +7,44 @@ class MoviesController < ApplicationController
   end
 
   def index
-    # Set table header class to hilite
-    if params['order'] == 'title'
-      @title_hilite = 'hilite'
-    elsif params['order'] == 'release_date'
-      @rd_hilite = 'hilite'
-    end
-
-    # Prepare checkboxes
-    @all_ratings = Movie.all_ratings
-    if params['ratings']
-      selected_ratings = params['ratings'].keys
+    # Session control: no params['do_not_redirect'] means that user didn't set a new setting.
+    # Then, remember last settings, RESTfully
+    unless params['do_not_redirect']
+      redirect_to movies_path('order'   => session['order'],
+                              'ratings' => session['ratings'],
+                              'do_not_redirect' => '')
     else
-      selected_ratings = @all_ratings
-    end
+      # New settings must be remembered
+      session['order'] = params['order']
+      session['ratings'] = params['ratings']
 
-    @checked = {}
-    @all_ratings.each do |rating|
-      if selected_ratings.include?(rating)
-        @checked[rating] = true
-      else
-        @checked[rating] = false
+      # Set table header class to hilite
+      if params['order'] == 'title'
+        @title_hilite = 'hilite'
+      elsif params['order'] == 'release_date'
+        @rd_hilite = 'hilite'
       end
-    end
 
-    # Get data from DB respecting desired sorting and filtering
-    @movies = Movie.where(rating: selected_ratings).order(params['order'])
+      # Prepare checkboxes
+      @all_ratings = Movie.all_ratings
+      if params['ratings']
+        selected_ratings = params['ratings'].keys
+      else
+        selected_ratings = @all_ratings
+      end
+
+      @checked = {}
+      @all_ratings.each do |rating|
+        if selected_ratings.include?(rating)
+          @checked[rating] = true
+        else
+          @checked[rating] = false
+        end
+      end
+
+      # Get data from DB respecting desired sorting and filtering
+      @movies = Movie.where(rating: selected_ratings).order(params['order'])
+    end
 
   end
 
